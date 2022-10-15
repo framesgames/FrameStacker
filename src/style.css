@@ -1,0 +1,35 @@
+html {
+    height: -webkit-fill-available;
+    width: -webkit-fill-available;
+    background-color: grey;
+}
+
+body {
+    height: -webkit-fill-available;
+    width: -webkit-fill-available;
+    background-color: grey;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    margin-left: 20px;
+    margin-right: 20px;
+}
+
+#canvas {
+    height: -webkit-fill-available;
+    width: -webkit-fill-available;
+    background-color: rgb(135, 169, 175);
+    opacity: 0.2;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    margin-left: 20px;
+    margin-right: 20px;
+}
+
+#application {
+    height: -webkit-fill-available;
+    width: -webkit-fill-available;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    margin-left: 20px;
+    margin-right: 20px;
+}
