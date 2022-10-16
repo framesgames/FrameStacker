@@ -3,7 +3,7 @@ const getDataFromCSV = (file) => {
     const papa = Papa.parse(file, {
       complete: (results) => {
         if (results.errors.length > 0) {
-          reject(papa.errors);
+          reject(results.errors);
         }
         resolve(results.data.map((row) => {
           return {
@@ -13,6 +13,7 @@ const getDataFromCSV = (file) => {
         }));
       },
       header: true, 
+      skipEmptyLines: true,
     })
   })
 }
