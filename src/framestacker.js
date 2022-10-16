@@ -1,53 +1,62 @@
-const generateRandomBlocks = (data, canvas, context) => {
-  const blocks = [];
-  for (const row of data) {
-    let coords;
-    do {
-      coords = new Coords(
-        0.4 * Math.random(),
-        0.1 + 0.8 * Math.random(),
-        row.length,
-        0.03,
-      )
-    } while(blocks.find(existingBlock => coords.isCollided(existingBlock.coords)));
-    blocks.push(new Block(coords, row.id, canvas, context));
-  }
-  return blocks;
-}
 
-const initialiseMouseHandlers = (canvas, blocks) => {
-  canvas.onmousedown = (event) => {
-    const rect = canvas.getBoundingClientRect();
-    const x = (event.clientX - rect.left) / canvas.clientWidth;
-    const y = (event.clientY - rect.top) / canvas.clientHeight;
-    const block = blocks.find(block => block.isClicked(x, y));
-    if (block) {
-      block.drag();
-    }
-  }
-  canvas.onmousemove = (event) => {
-    console.log(event);
-  }
-}
 
 window.addEventListener('load', (event) => {
-  const input = document.getElementById('frames');
-  const canvas = document.getElementById('canvas');
-  const context = canvas.getContext('2d');
-  context.fillStyle = 'red';
-  context.font = '20px Arial';
+  $('.droppables').droppable();
   
+  /**
+   * Generates Block classes that data gets stored in.
+   * @param {*} data 
+   * @returns 
+   */
+  const generateBlocks = (data) => {
+    const blocks = [];
+    for (const row of data) {
+      blocks.push(new Block(row.id, row.length));
+    }
+    return blocks;
+  }
+  
+  /**
+   * Linearly scales blocks so that the maximum length is 50% of the draggable area.
+   * @param {*} blocks 
+   * @returns 
+   */
+  const scaleBlocks = (blocks) => {
+    const maxLength = blocks.reduce((acc, el) => {
+      if (acc < el.length) {
+        acc = el.length;
+      }
+      return acc;
+    }, -Infinity);
+    blocks.forEach((block) => {
+      block.length = block.length * (50 / maxLength);
+    });
+    return blocks;
+  }
+
+  
+  /**
+   * Actually draws a block when given a block's data
+   * @param {*} block 
+   */
+  const drawBlock = (block) => {
+    const element = $.parseHTML(`<div id="${block.frameId}" class="block block-padding">${block.frameId}</div>`);
+    $('#unplaced-blocks').append(element);
+    $(`#${block.frameId}`).width(`${block.length}%`);
+    $(`#${block.frameId}`).draggable({ revert: 'invalid' });
+  }
+  
+
+  const input = document.getElementById('frames');
   input.addEventListener('change', (event) => {
     const files = event.target.files;
     Promise.all(Object.keys(files).map(fileKey => getDataFromCSV(files[fileKey])))
     .then((jaggedData) => {
       const data = jaggedData.flat();
-      const blocks = generateRandomBlocks(data, canvas, context);
-      blocks.forEach(block => block.draw());
-      initialiseMouseHandlers(canvas, blocks)
+      const blocks = scaleBlocks(generateBlocks(data));
+      blocks.forEach((block) => drawBlock(block));
     })
     .catch(err => console.error(err));
-
   });
 })
 

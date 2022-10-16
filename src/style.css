@@ -1,35 +1,53 @@
 html {
-    height: -webkit-fill-available;
-    width: -webkit-fill-available;
-    background-color: grey;
+  height: -webkit-fill-available;
+  width: -webkit-fill-available;
 }
 
 body {
-    height: -webkit-fill-available;
-    width: -webkit-fill-available;
-    background-color: grey;
-    margin-top: 20px;
-    margin-bottom: 20px;
-    margin-left: 20px;
-    margin-right: 20px;
+  height: 90%;
+  width: 90%;
 }
 
-#canvas {
-    height: -webkit-fill-available;
-    width: -webkit-fill-available;
-    background-color: rgb(135, 169, 175);
-    opacity: 0.2;
-    margin-top: 20px;
-    margin-bottom: 20px;
-    margin-left: 20px;
-    margin-right: 20px;
+.padding {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  margin-left: 20px;
+  margin-right: 20px;
 }
 
-#application {
-    height: -webkit-fill-available;
-    width: -webkit-fill-available;
-    margin-top: 20px;
-    margin-bottom: 20px;
-    margin-left: 20px;
-    margin-right: 20px;
+.block-padding {
+  margin-top: 5px;
+  margin-bottom: 5px;
+  margin-left: 5px;
+  margin-right: 5px;
+}
+
+
+.block {
+  display: flex;
+  text-align: center;
+  background-color: grey;
+  outline-color: black;
+}
+
+.column1 {
+  width: 40%;
+  outline: 5px solid black;
+}
+
+.column2 {
+  width: 40%;
+  height: 80%;
+  display: flex;
+  flex-direction: column-reverse;
+  outline: 5px solid black;
+}
+
+.flex-container {
+  height: -webkit-fill-available;
+  width: -webkit-fill-available;
+  display: flex;
+  align-items: center;
+  height: 90%;
+  width: 90%;
 }
