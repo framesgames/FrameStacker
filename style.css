@@ -1,0 +1,58 @@
+html {
+  height: -webkit-fill-available;
+  width: -webkit-fill-available;
+}
+
+h1, p {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+
+body {
+  height: 90%;
+  width: 90%;
+}
+
+.padding {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  margin-left: 20px;
+  margin-right: 20px;
+}
+
+.block-padding {
+  margin-top: 5px;
+  margin-bottom: 5px;
+  margin-left: 5px;
+  margin-right: 5px;
+}
+
+
+.block {
+  display: flex;
+  text-align: center;
+  background-color: grey;
+  outline-color: black;
+}
+
+.column1 {
+  width: 45%;
+  outline: 5px solid black;
+}
+
+.column2 {
+  width: 45%;
+  height: 80%;
+  display: flex;
+  flex-direction: column-reverse;
+  outline: 5px solid black;
+}
+
+.flex-container {
+  height: -webkit-fill-available;
+  width: -webkit-fill-available;
+  display: flex;
+  align-items: center;
+  height: 90%;
+  width: 90%;
+}
