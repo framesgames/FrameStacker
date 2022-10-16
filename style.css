@@ -42,7 +42,7 @@ body {
 
 .column2 {
   width: 45%;
-  height: 80%;
+  height: -webkit-fill-available;
   display: flex;
   flex-direction: column-reverse;
   outline: 5px solid black;
