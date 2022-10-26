@@ -40,7 +40,7 @@ window.addEventListener('load', (event) => {
    * @param {*} block 
    */
   const drawBlock = (block) => {
-    const element = $.parseHTML(`<div id="${block.frameId}" class="block block-padding ui-button ui-widget ui-corner-all">${block.frameId}</div>`);
+    const element = $.parseHTML(`<div id="${block.frameId}" class="block block-padding">${block.frameId}</div>`);
     $('#unplaced-blocks').append(element);
     $(`#${block.frameId}`).width(`${block.length}%`);
     $(`#${block.frameId}`).draggable({ revert: 'invalid' });
