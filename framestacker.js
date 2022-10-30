@@ -11,13 +11,13 @@ window.addEventListener('load', (event) => {
   const generateBlocks = (data) => {
     const blocks = [];
     for (const row of data) {
-      blocks.push(new Block(row.id, row.length));
+      blocks.push(new Block(row.id, row.length, row.height));
     }
     return blocks;
   }
   
   /**
-   * Linearly scales blocks so that the maximum length is 50% of the draggable area.
+   * Linearly scales blocks so that the maximum length is 50% of the draggable area and maximum height is 200.
    * @param {*} blocks 
    * @returns 
    */
@@ -28,8 +28,15 @@ window.addEventListener('load', (event) => {
       }
       return acc;
     }, -Infinity);
+    const maxHeight = blocks.reduce((acc, el) => {
+      if (acc < el.height) {
+        acc = el.height;
+      }
+      return acc;
+    }, -Infinity);
     blocks.forEach((block) => {
-      block.length = block.length * (50 / maxLength);
+      block.length = block.length * (50 / maxLength); // values can range from 0-50
+      block.height = 50 + block.height * (150 / maxHeight); // values can range from 50-200
     });
     return blocks;
   }
@@ -43,6 +50,7 @@ window.addEventListener('load', (event) => {
     const element = $.parseHTML(`<div id="${block.frameId}" class="block block-padding">${block.frameId}</div>`);
     $('#unplaced-blocks').append(element);
     $(`#${block.frameId}`).width(`${block.length}%`);
+    $(`#${block.frameId}`).css('background-color', `rgb(${block.height}, ${block.height}, ${block.height})`);
     $(`#${block.frameId}`).draggable({ revert: 'invalid' });
   }
   
@@ -56,7 +64,10 @@ window.addEventListener('load', (event) => {
       const blocks = scaleBlocks(generateBlocks(data));
       blocks.forEach((block) => drawBlock(block));
     })
-    .catch(err => console.error(err));
+    .catch((err) => {
+      console.error(err);
+      alert(err);
+    });
   });
 })
 
