@@ -113,7 +113,7 @@ class App extends React.Component {
   renderBlocks() {
     return this.state.blocks.map((block, id) => {
       return (
-        <Block key={block.id} draggableId={block.id} index={id} />
+        <Block key={block.id} draggableId={block.id} index={id} length={block.length} height={block.height} />
       )
     });
   }
@@ -128,7 +128,9 @@ class App extends React.Component {
         <h1>Frame Stacker</h1>
         <div className="flex-container">
           <DragDropContext onDragEnd={this.dragEnd}>
-            <Droppable droppableId="unplaced-blocks">
+            <Droppable 
+              droppableId="unplaced-blocks"
+            >
               {(provided) => (
                 <div  {...provided.droppableProps} ref={provided.innerRef} className="column1">
                   { this.renderBlocks() }
