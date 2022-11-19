@@ -12,12 +12,37 @@ class App extends React.Component {
     super(props);
     this.state = {
       blocks: [],
+      isDragging: [],
     }
     this.generateBlocks = this.generateBlocks.bind(this);
     this.scaleBlocks = this.scaleBlocks.bind(this);
     this.getDataFromCSV = this.getDataFromCSV.bind(this);
     this.readFiles = this.readFiles.bind(this);
     this.renderBlocks = this.renderBlocks.bind(this);
+    this.dragStart = this.dragStart.bind(this);
+    this.dragEnd = this.dragEnd.bind(this);
+    this.keyDown = this.keyDown.bind(this);
+  }
+
+  componentDidMount() {
+    document.addEventListener('keypress', this.keyDown, false);
+  }
+
+
+  keyDown() {
+    console.log(`Attempting to transpose the following blocks: ${this.state.isDragging.join(', ')}`)
+    const blocks = this.state.blocks.map((block) => {
+      if (this.state.isDragging.includes(block.id)) {
+        const length = block.length;
+        const height = block.height;
+        block.length = height;
+        block.height = length;
+        console.log(block);
+      }
+      return block;
+    });
+    this.scaleBlocks(blocks);
+    this.setState({ blocks });
   }
 
   /**
@@ -33,10 +58,9 @@ class App extends React.Component {
         length: +row.length,
         width: +row.width,
         height: +row.height,
-        coords: {
-          left: 50,
-          top: 50
-        }
+        scaledLength: +row.length,
+        scaledWidth: +row.width,
+        scaledHeight: +row.height,
       })
     }
     return blocks;
@@ -61,8 +85,8 @@ class App extends React.Component {
       return acc;
     }, -Infinity);
     blocks.forEach((block) => {
-      block.length = block.length * (50 / maxLength); // values can range from 0-50
-      block.height = 50 + block.height * (150 / maxHeight); // values can range from 50-200
+      block.scaledLength = block.length * (50 / maxLength); // values can range from 0-50
+      block.scaledHeight = 50 + block.height * (150 / maxHeight); // values can range from 50-200
     });
     return blocks;
   }
@@ -115,21 +139,41 @@ class App extends React.Component {
     });
   }
 
+  dragStart(blockId) {
+    if (!this.state.isDragging.includes(blockId)) {
+      this.setState({
+        isDragging: this.state.isDragging.concat(blockId),
+      })
+    }
+  }
+
+  dragEnd(blockId) {
+    this.setState({
+      isDragging: this.state.isDragging.filter(id => id !== blockId),
+    })
+  }
+
   renderBlocks() {
-    return this.state.blocks.map((block, id) => {
-      
+    return this.state.blocks.map((block, id) => {  
       return (
-        <Draggable>
-          <div>
-            <Block 
-              key={block.id} 
-              draggableId={block.id} 
-              index={id} 
-              length={block.length} 
-              height={block.height} 
-            />
-          </div>
-        </Draggable>
+        <div 
+          style={{ width: `${block.scaledLength}px` }}
+          key={block.id}
+        >
+          <Draggable 
+            onStart={() => this.dragStart(block.id)}
+            onStop={() => this.dragEnd(block.id)}
+          >
+            <div>
+              <Block 
+                draggableId={block.id} 
+                index={id} 
+                length={block.scaledLength} 
+                height={block.scaledHeight} 
+              />
+            </div>
+          </Draggable>
+        </div>
       )
     });
   }
@@ -138,7 +182,13 @@ class App extends React.Component {
     return (
         <div>
           <h1>Frame Stacker</h1>
-          <Column renderBlocks={this.renderBlocks} />
+          <div className="flex-container">
+            <div id="unplaced-blocks" className="column1 padding droppables">
+              <p>Unplaced blocks:</p>
+              {this.renderBlocks ? this.renderBlocks() : <div><p>Yeeet</p></div>}
+            </div>
+            <div id="placed-blocks" className="column2 padding droppables"></div>
+          </div>
           <div className="padding">
             <div>
               <input id="frames" className="ui-button ui-widget ui-corner-all" type="file" name="frames" accept="test/csv" onChange={this.readFiles} multiple />
