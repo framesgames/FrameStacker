@@ -3,7 +3,10 @@ import './App.css';
 import Block from './Block'
 import React from 'react';
 import * as Papa from 'papaparse';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+// import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend'
+import { DndProvider } from 'react-dnd'
+
 
 class App extends React.Component {
   constructor (props) {
@@ -113,7 +116,13 @@ class App extends React.Component {
   renderBlocks() {
     return this.state.blocks.map((block, id) => {
       return (
-        <Block key={block.id} draggableId={block.id} index={id} length={block.length} height={block.height} />
+        <Block 
+          key={block.id} 
+          draggableId={block.id} 
+          index={id} 
+          length={block.length} 
+          height={block.height} 
+        />
       )
     });
   }
@@ -124,29 +133,21 @@ class App extends React.Component {
   
   render() {
     return (
-      <div>
-        <h1>Frame Stacker</h1>
-        <div className="flex-container">
-          <DragDropContext onDragEnd={this.dragEnd}>
-            <Droppable 
-              droppableId="unplaced-blocks"
-            >
-              {(provided) => (
-                <div  {...provided.droppableProps} ref={provided.innerRef} className="column1">
-                  { this.renderBlocks() }
-                  {provided.placeholder}
-                </div>
-              )}
-            </Droppable>
-          </DragDropContext>
-        </div>
-        <div className="padding">
-          <div>
-            {/* upload button */}
-            <input id="frames" className="ui-button ui-widget ui-corner-all" type="file" name="frames" accept="test/csv" onChange={this.readFiles} multiple />
+      <DndProvider backend={HTML5Backend}>
+        <div>
+          <h1>Frame Stacker</h1>
+          <div className="flex-container">
+            <div className="column1">
+              { this.renderBlocks() }
+            </div>
+          </div>
+          <div className="padding">
+            <div>
+              <input id="frames" className="ui-button ui-widget ui-corner-all" type="file" name="frames" accept="test/csv" onChange={this.readFiles} multiple />
+            </div>
           </div>
         </div>
-      </div>
+      </DndProvider>
     );
   }
 }
