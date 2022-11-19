@@ -1,7 +1,5 @@
-// import logo from './logo.svg';
 import './App.css';
 import Block from './Block'
-import Column from './Column';
 import React from 'react';
 import * as Papa from 'papaparse';
 import Draggable from 'react-draggable';
@@ -30,7 +28,6 @@ class App extends React.Component {
 
 
   keyDown() {
-    console.log(`Attempting to transpose the following blocks: ${this.state.isDragging.join(', ')}`)
     const blocks = this.state.blocks.map((block) => {
       if (this.state.isDragging.includes(block.id)) {
         const length = block.length;
