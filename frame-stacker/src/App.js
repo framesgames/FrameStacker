@@ -1,11 +1,13 @@
 // import logo from './logo.svg';
 import './App.css';
 import Block from './Block'
+import Column from './Column';
 import React from 'react';
 import * as Papa from 'papaparse';
 // import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-import { HTML5Backend } from 'react-dnd-html5-backend'
-import { DndProvider } from 'react-dnd'
+// import { HTML5Backend } from 'react-dnd-html5-backend'
+// import { DndProvider } from 'react-dnd'
+import Draggable from 'react-draggable';
 
 
 class App extends React.Component {
@@ -19,9 +21,8 @@ class App extends React.Component {
     this.getDataFromCSV = this.getDataFromCSV.bind(this);
     this.readFiles = this.readFiles.bind(this);
     this.renderBlocks = this.renderBlocks.bind(this);
-    this.dragEnd = this.dragEnd.bind(this);
   }
-  
+
   /**
    * Generates Block classes that data gets stored in.
    * @param {*} data 
@@ -35,6 +36,10 @@ class App extends React.Component {
         length: +row.length,
         width: +row.width,
         height: +row.height,
+        coords: {
+          left: 50,
+          top: 50
+        }
       })
     }
     return blocks;
@@ -115,6 +120,7 @@ class App extends React.Component {
 
   renderBlocks() {
     return this.state.blocks.map((block, id) => {
+      
       return (
         <Block 
           key={block.id} 
@@ -126,28 +132,20 @@ class App extends React.Component {
       )
     });
   }
-
-  dragEnd() {
-    console.log('drag end!!!')
-  }
   
   render() {
     return (
-      <DndProvider backend={HTML5Backend}>
+      // <DndProvider backend={HTML5Backend}>
         <div>
-          <h1>Frame Stacker</h1>
-          <div className="flex-container">
-            <div className="column1">
-              { this.renderBlocks() }
-            </div>
-          </div>
+          <Draggable><div>Frame Stacker</div></Draggable>
+          {/* <Column renderBlocks={this.renderBlocks} /> */}
           <div className="padding">
             <div>
               <input id="frames" className="ui-button ui-widget ui-corner-all" type="file" name="frames" accept="test/csv" onChange={this.readFiles} multiple />
             </div>
           </div>
         </div>
-      </DndProvider>
+      // </DndProvider>
     );
   }
 }

@@ -6,14 +6,14 @@ import { ItemTypes } from './Constants';
 
 
 const Block = (props) => {
+    
     const [{ opacity }, dragRef] = useDrag(
         () => ({
-          type: ItemTypes.BLOCK,
-          collect: (monitor) => ({
-            opacity: monitor.isDragging() ? 0.5 : 1
-          })
-        }),
-        []
+            type: ItemTypes.BLOCK,
+            collect: (monitor) => ({
+                isDragging: monitor.isDragging(),
+            }),
+        })
     )
     return (
         <div 
