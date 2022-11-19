@@ -4,9 +4,6 @@ import Block from './Block'
 import Column from './Column';
 import React from 'react';
 import * as Papa from 'papaparse';
-// import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-// import { HTML5Backend } from 'react-dnd-html5-backend'
-// import { DndProvider } from 'react-dnd'
 import Draggable from 'react-draggable';
 
 
@@ -122,30 +119,32 @@ class App extends React.Component {
     return this.state.blocks.map((block, id) => {
       
       return (
-        <Block 
-          key={block.id} 
-          draggableId={block.id} 
-          index={id} 
-          length={block.length} 
-          height={block.height} 
-        />
+        <Draggable>
+          <div>
+            <Block 
+              key={block.id} 
+              draggableId={block.id} 
+              index={id} 
+              length={block.length} 
+              height={block.height} 
+            />
+          </div>
+        </Draggable>
       )
     });
   }
   
   render() {
     return (
-      // <DndProvider backend={HTML5Backend}>
         <div>
-          <Draggable><div>Frame Stacker</div></Draggable>
-          {/* <Column renderBlocks={this.renderBlocks} /> */}
+          <h1>Frame Stacker</h1>
+          <Column renderBlocks={this.renderBlocks} />
           <div className="padding">
             <div>
               <input id="frames" className="ui-button ui-widget ui-corner-all" type="file" name="frames" accept="test/csv" onChange={this.readFiles} multiple />
             </div>
           </div>
         </div>
-      // </DndProvider>
     );
   }
 }
