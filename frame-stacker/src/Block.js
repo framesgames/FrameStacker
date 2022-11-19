@@ -1,6 +1,7 @@
 import React from 'react';
 
 class Block extends React.Component {
+    // eslint-disable-next-line
     constructor(props) {
         super(props);
     }

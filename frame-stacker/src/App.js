@@ -26,19 +26,17 @@ class App extends React.Component {
     document.addEventListener('keypress', this.keyDown, false);
   }
 
-
   keyDown() {
-    const blocks = this.state.blocks.map((block) => {
+    let blocks = this.state.blocks.map((block) => {
       if (this.state.isDragging.includes(block.id)) {
         const length = block.length;
         const height = block.height;
         block.length = height;
         block.height = length;
-        console.log(block);
       }
       return block;
     });
-    this.scaleBlocks(blocks);
+    blocks = this.scaleBlocks(blocks);
     this.setState({ blocks });
   }
 
