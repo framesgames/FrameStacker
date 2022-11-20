@@ -10,8 +10,7 @@ class Block extends React.Component {
         return (
             <div 
                 className="block block-padding" 
-                style={{
-                    width: `${this.props.length}px`, 
+                style={{ 
                     backgroundColor: `rgb(${this.props.height}, ${this.props.height}, ${this.props.height})`,
                 }}
             >

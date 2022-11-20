@@ -151,8 +151,9 @@ class App extends React.Component {
   renderBlocks() {
     return this.state.blocks.map((block, id) => {  
       return (
+        // this div controls the length of the blocks, not the block itself
         <div 
-          style={{ width: `${block.scaledLength}px` }}
+          style={{ width: `${block.scaledLength}%` }}
           key={block.id}
         >
           <Draggable 
