@@ -7,11 +7,12 @@ class Block extends React.Component {
     }
 
     render() {
+        const intensity = this.props.height > 200 ? 200 : this.props.height;
         return (
             <div 
                 className="block block-padding" 
                 style={{ 
-                    backgroundColor: `rgb(${this.props.height}, ${this.props.height}, ${this.props.height})`,
+                    backgroundColor: `rgb(${intensity}, ${intensity}, ${intensity})`,
                 }}
             >
                 {this.props.draggableId}
