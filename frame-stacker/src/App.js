@@ -3,6 +3,7 @@ import Block from './Block'
 import React from 'react';
 import * as Papa from 'papaparse';
 import _ from 'lodash';
+import DropZone from './DropZone';
 
 
 class App extends React.Component {
@@ -37,7 +38,6 @@ class App extends React.Component {
     if (blockId) {
       const unplacedBlocks = _.cloneDeep(this.state.unplacedBlocks);
       unplacedBlocks[blockId].flipped = !unplacedBlocks[blockId].flipped
-      console.log(unplacedBlocks[blockId])
       this.setState({ unplacedBlocks });
     }
   }
@@ -221,12 +221,18 @@ class App extends React.Component {
               <p>Unplaced blocks:</p>
               {this.renderBlocks(this.state.unplacedBlocks)}
             </div>
-            <div 
+            <div
+              id="placed-blocks"
+              className="column2 padding droppables"
+            >
+              <DropZone />
+            </div>
+            {/* <div 
               id="placed-blocks" 
               className="column2 padding droppables" 
               onDrop={() => console.log('received a drop event!')}
             >
-            </div>
+            </div> */}
           </div>
           <div className="padding">
             <div>
