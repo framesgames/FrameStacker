@@ -15,6 +15,9 @@ class App extends React.Component {
       horizontalScale: undefined,
       verticalScale: undefined,
     }
+    this.dragImage = new Image();
+    this.dragImage.src = 'https://en.wikipedia.org/wiki/File:Color_icon_gray_v2.svg';
+
     this.generateBlocks = this.generateBlocks.bind(this);
     this.scaleBlocks = this.scaleBlocks.bind(this);
     this.scaleLength = this.scaleLength.bind(this);
@@ -25,7 +28,6 @@ class App extends React.Component {
     this.dragStart = this.dragStart.bind(this);
     this.dragEnd = this.dragEnd.bind(this);
     this.drag = this.drag.bind(this);
-    this.drop = this.onDrop.bind(this);
     this.keyUp = this.keyUp.bind(this);
   }
 
@@ -136,11 +138,12 @@ class App extends React.Component {
   }
 
   dragStart(e, blockId) {
+    e.dataTransfer.setDragImage(this.dragImage, 0, 0);
     const unplacedBlocks = _.cloneDeep(this.state.unplacedBlocks);
     unplacedBlocks[blockId].diffX = 0; 
     unplacedBlocks[blockId].diffY = 0; 
-    unplacedBlocks[blockId].translationX = unplacedBlocks[blockId].translationX || 0; 
-    unplacedBlocks[blockId].translationY = unplacedBlocks[blockId].translationY || 0; 
+    unplacedBlocks[blockId].tmpTranslationX = unplacedBlocks[blockId].translationX || 0; 
+    unplacedBlocks[blockId].tmpTranslationY = unplacedBlocks[blockId].translationY || 0; 
     unplacedBlocks[blockId].currentX = e.clientX;
     unplacedBlocks[blockId].currentY = e.clientY;
     
@@ -149,26 +152,25 @@ class App extends React.Component {
 
 
   drag(e, blockId) {
-    e.preventDefault();
-    const unplacedBlocks = _.cloneDeep(this.state.unplacedBlocks);
 
+    const unplacedBlocks = _.cloneDeep(this.state.unplacedBlocks);
+    
     unplacedBlocks[blockId].diffX = e.clientX - unplacedBlocks[blockId].currentX;
     unplacedBlocks[blockId].diffY = e.clientY - unplacedBlocks[blockId].currentY;
     unplacedBlocks[blockId].currentX = e.clientX;
     unplacedBlocks[blockId].currentY = e.clientY;
-    unplacedBlocks[blockId].translationX += unplacedBlocks[blockId].diffX;
-    unplacedBlocks[blockId].translationY += unplacedBlocks[blockId].diffY;
+    unplacedBlocks[blockId].tmpTranslationX += unplacedBlocks[blockId].diffX;
+    unplacedBlocks[blockId].tmpTranslationY += unplacedBlocks[blockId].diffY;
 
     this.setState({ unplacedBlocks });
   }
   
-  onDrop(e) {
-    e.preventDefault();
-    this.setState({ isDragging: undefined })
-  }
-  
   dragEnd(e, blockId) {
     e.preventDefault();
+    const unplacedBlocks = _.cloneDeep(this.state.unplacedBlocks);
+    unplacedBlocks[blockId].translationX = unplacedBlocks[blockId].tmpTranslationX;
+    unplacedBlocks[blockId].translationY = unplacedBlocks[blockId].tmpTranslationY;
+    this.setState({ unplacedBlocks });
   }
 
   scaleLength(block) {
@@ -227,12 +229,6 @@ class App extends React.Component {
             >
               <DropZone />
             </div>
-            {/* <div 
-              id="placed-blocks" 
-              className="column2 padding droppables" 
-              onDrop={() => console.log('received a drop event!')}
-            >
-            </div> */}
           </div>
           <div className="padding">
             <div>
