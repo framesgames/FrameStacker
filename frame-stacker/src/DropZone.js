@@ -21,9 +21,7 @@ class DropZone extends React.Component {
     render() {
         return (
             <div 
-                style={{ 
-                    height: '-webkit-fill-available', 
-                }}
+                style={{ height: '100%' }}
                 onDragEnter={this.onDragEnter}
                 onDragLeave={this.onDragLeave}
                 onDrop={this.onDragLeave}

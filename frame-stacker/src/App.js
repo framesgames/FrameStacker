@@ -221,11 +221,10 @@ class App extends React.Component {
   
   render() {
     return (
-        <div onDragOver={(e) => e.preventDefault()}>
+        <div className="flex-container padding" onDragOver={(e) => e.preventDefault()}>
           <h1>Frame Stacker</h1>
-          <div className="flex-container">
             <Stack direction="vertical" className="stack" gap={3}>
-              <Row>
+              <Row id="file-input">
                 <Form.Group controlId="formFile" className="mb-3">
                   <Form.Label>Import one or more CSV files with blocks to be stacked</Form.Label>
                   <Form.Control 
@@ -239,19 +238,19 @@ class App extends React.Component {
                   />
                 </Form.Group>
               </Row>
-              <Row>
+              <Row id="frame-stacker">
                 <Stack direction="horizontal" className="stack" gap={3}>
                   <div className="bg-light border column padding">
                     <p>Unplaced blocks:</p>
                     {this.renderBlocks(this.state.unplacedBlocks)}
                   </div>
                   <div className="bg-light border column padding">
+                    <p>Place blocks here:</p>
                     <DropZone />
                   </div>
                 </Stack>
               </Row>
             </Stack>
-          </div>
         </div>
     );
   }

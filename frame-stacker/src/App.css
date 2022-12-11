@@ -37,16 +37,9 @@
   }
 }
 
-
-html {
-  height: -webkit-fill-available;
-  width: -webkit-fill-available;
-}
-
-
-body {
-  height: 90%;
-  width: 90%;
+body, html, .app, .stack, #frame-stacker {
+  height: 100%;
+  width: 100%;
 }
 
 .padding {
@@ -65,20 +58,10 @@ body {
 
 .column {
   width: 45%;
-  background-color: #6969fc;
-  height: -webkit-fill-available;
-}
-
-.stack {
-  height: -webkit-fill-available;
-  width: -webkit-fill-available;
+  height: 90%;
 }
 
 .flex-container {
-  height: -webkit-fill-available;
-  width: -webkit-fill-available;
-  display: flex;
-  align-items: center;
   height: 90%;
   width: 90%;
 }
