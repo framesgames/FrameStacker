@@ -8,9 +8,6 @@ import Stack from 'react-bootstrap/Stack';
 import Row from 'react-bootstrap/Row';
 import Form from 'react-bootstrap/Form';
 
-
-
-
 class App extends React.Component {
   constructor (props) {
     super(props);
@@ -19,7 +16,7 @@ class App extends React.Component {
       isDragging: undefined,
       horizontalScale: undefined,
       verticalScale: undefined,
-    }
+    };
     this.dragImage = new Image();
     this.dragImage.src = 'https://en.wikipedia.org/wiki/File:Color_icon_gray_v2.svg';
 
@@ -30,6 +27,7 @@ class App extends React.Component {
     this.getDataFromCSV = this.getDataFromCSV.bind(this);
     this.readFiles = this.readFiles.bind(this);
     this.renderBlocks = this.renderBlocks.bind(this);
+    this.renderDragImage = this.renderDragImage.bind(this);
     this.dragStart = this.dragStart.bind(this);
     this.dragEnd = this.dragEnd.bind(this);
     this.drag = this.drag.bind(this);
@@ -143,7 +141,9 @@ class App extends React.Component {
   }
 
   dragStart(e, blockId) {
-    e.dataTransfer.setDragImage(this.dragImage, 0, 0);
+    console.log(e);
+    e.dataTransfer.setDragImage(document.getElementById('dragImage'), e.nativeEvent.offsetX / 2, e.nativeEvent.offsetY);
+
     const unplacedBlocks = _.cloneDeep(this.state.unplacedBlocks);
     unplacedBlocks[blockId].diffX = 0; 
     unplacedBlocks[blockId].diffY = 0; 
@@ -218,17 +218,37 @@ class App extends React.Component {
       )
     });
   }
+
+  renderDragImage(block) {
+    if (!block) {
+      return <canvas id="dragImage" hidden style={{ backgroundColor: 'gray' }} />;
+    }
+    const length = this.scaleLength(block);
+    const height = this.scaleHeight(block);
+    return (
+      <canvas 
+        id="dragImage" 
+        style={{
+          width: `${length}%`,
+          backgroundColor: `rgb(${height}, ${height}, ${height})`,
+          height: '30px',
+        }} 
+      />
+    );
+  }
   
   render() {
     return (
-        <div className="flex-container padding" onDragOver={(e) => e.preventDefault()}>
+        <div 
+          className="flex-container padding" 
+          onDragOver={(e) => e.preventDefault()}
+        >
           <h1>Frame Stacker</h1>
             <Stack direction="vertical" className="stack" gap={3}>
               <Row id="file-input">
                 <Form.Group controlId="formFile" className="mb-3">
                   <Form.Label>Import one or more CSV files with blocks to be stacked</Form.Label>
                   <Form.Control 
-                    id="frames" 
                     className="ui-button ui-widget ui-corner-all" 
                     type="file" 
                     name="frames" 
@@ -243,6 +263,7 @@ class App extends React.Component {
                   <div className="bg-light border column padding">
                     <p>Unplaced blocks:</p>
                     {this.renderBlocks(this.state.unplacedBlocks)}
+                    {this.renderDragImage(this.state.unplacedBlocks[this.state.isDragging])}
                   </div>
                   <div className="bg-light border column padding">
                     <p>Place blocks here:</p>
