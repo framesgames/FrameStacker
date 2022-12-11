@@ -4,6 +4,11 @@ import React from 'react';
 import * as Papa from 'papaparse';
 import _ from 'lodash';
 import DropZone from './DropZone';
+import Stack from 'react-bootstrap/Stack';
+import Row from 'react-bootstrap/Row';
+import Form from 'react-bootstrap/Form';
+
+
 
 
 class App extends React.Component {
@@ -35,11 +40,11 @@ class App extends React.Component {
     window.addEventListener('keyup', this.keyUp, false);
   }
 
-  keyUp() {
+  keyUp(e) {
     const blockId = this.state.isDragging;
-    if (blockId) {
+    if (blockId && e.key === ' ') {
       const unplacedBlocks = _.cloneDeep(this.state.unplacedBlocks);
-      unplacedBlocks[blockId].flipped = !unplacedBlocks[blockId].flipped
+      unplacedBlocks[blockId].flipped = !unplacedBlocks[blockId].flipped;
       this.setState({ unplacedBlocks });
     }
   }
@@ -219,29 +224,33 @@ class App extends React.Component {
         <div onDragOver={(e) => e.preventDefault()}>
           <h1>Frame Stacker</h1>
           <div className="flex-container">
-            <div id="unplaced-blocks" className="column1 padding">
-              <p>Unplaced blocks:</p>
-              {this.renderBlocks(this.state.unplacedBlocks)}
-            </div>
-            <div
-              id="placed-blocks"
-              className="column2 padding droppables"
-            >
-              <DropZone />
-            </div>
-          </div>
-          <div className="padding">
-            <div>
-              <input 
-                id="frames" 
-                className="ui-button ui-widget ui-corner-all" 
-                type="file" 
-                name="frames" 
-                accept="test/csv" 
-                onChange={this.readFiles} 
-                multiple 
-              />
-            </div>
+            <Stack direction="vertical" className="stack" gap={3}>
+              <Row>
+                <Form.Group controlId="formFile" className="mb-3">
+                  <Form.Label>Import one or more CSV files with blocks to be stacked</Form.Label>
+                  <Form.Control 
+                    id="frames" 
+                    className="ui-button ui-widget ui-corner-all" 
+                    type="file" 
+                    name="frames" 
+                    accept="test/csv" 
+                    onChange={this.readFiles} 
+                    multiple 
+                  />
+                </Form.Group>
+              </Row>
+              <Row>
+                <Stack direction="horizontal" className="stack" gap={3}>
+                  <div className="bg-light border column padding">
+                    <p>Unplaced blocks:</p>
+                    {this.renderBlocks(this.state.unplacedBlocks)}
+                  </div>
+                  <div className="bg-light border column padding">
+                    <DropZone />
+                  </div>
+                </Stack>
+              </Row>
+            </Stack>
           </div>
         </div>
     );

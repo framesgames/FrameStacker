@@ -23,7 +23,6 @@ class DropZone extends React.Component {
             <div 
                 style={{ 
                     height: '-webkit-fill-available', 
-                    backgroundColor: this.state.hovered ? 'yellow' : 'white'
                 }}
                 onDragEnter={this.onDragEnter}
                 onDragLeave={this.onDragLeave}
