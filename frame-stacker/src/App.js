@@ -17,8 +17,6 @@ class App extends React.Component {
       horizontalScale: undefined,
       verticalScale: undefined,
     };
-    this.dragImage = new Image();
-    this.dragImage.src = 'https://en.wikipedia.org/wiki/File:Color_icon_gray_v2.svg';
 
     this.generateBlocks = this.generateBlocks.bind(this);
     this.scaleBlocks = this.scaleBlocks.bind(this);
@@ -143,7 +141,7 @@ class App extends React.Component {
   dragStart(e, blockId) {
     e.dataTransfer.setDragImage(
       document.getElementById('dragImage'), 
-      e.nativeEvent.offsetX / 2, 
+      e.nativeEvent.offsetX, 
       e.nativeEvent.offsetY
     );
 
