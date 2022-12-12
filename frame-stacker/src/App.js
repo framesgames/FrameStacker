@@ -141,8 +141,11 @@ class App extends React.Component {
   }
 
   dragStart(e, blockId) {
-    console.log(e);
-    e.dataTransfer.setDragImage(document.getElementById('dragImage'), e.nativeEvent.offsetX / 2, e.nativeEvent.offsetY);
+    e.dataTransfer.setDragImage(
+      document.getElementById('dragImage'), 
+      e.nativeEvent.offsetX / 2, 
+      e.nativeEvent.offsetY
+    );
 
     const unplacedBlocks = _.cloneDeep(this.state.unplacedBlocks);
     unplacedBlocks[blockId].diffX = 0; 
@@ -157,7 +160,6 @@ class App extends React.Component {
 
 
   drag(e, blockId) {
-
     const unplacedBlocks = _.cloneDeep(this.state.unplacedBlocks);
     
     unplacedBlocks[blockId].diffX = e.clientX - unplacedBlocks[blockId].currentX;
@@ -221,17 +223,29 @@ class App extends React.Component {
 
   renderDragImage(block) {
     if (!block) {
-      return <canvas id="dragImage" hidden style={{ backgroundColor: 'gray' }} />;
+      return (
+        <canvas 
+          id="dragImage" 
+          style={{ 
+            backgroundColor: 'gray', 
+            zIndex: -1000,
+            position: 'relative',
+          }} 
+        />
+      );
     }
     const length = this.scaleLength(block);
     const height = this.scaleHeight(block);
+    const colorIntensity = height < 200 ? height : 200;
     return (
       <canvas 
         id="dragImage" 
         style={{
           width: `${length}%`,
-          backgroundColor: `rgb(${height}, ${height}, ${height})`,
+          backgroundColor: `rgb(${colorIntensity}, ${colorIntensity}, ${colorIntensity})`,
           height: '30px',
+          position: 'relative',
+          zIndex: -1000,
         }} 
       />
     );
