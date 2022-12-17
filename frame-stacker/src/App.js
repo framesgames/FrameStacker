@@ -2,42 +2,50 @@ import './App.css';
 import Block from './Block'
 import React from 'react';
 import * as Papa from 'papaparse';
-import Draggable from 'react-draggable';
-
+import _ from 'lodash';
+import DropZone from './DropZone';
+import Stack from 'react-bootstrap/Stack';
+import Row from 'react-bootstrap/Row';
+import Form from 'react-bootstrap/Form';
 
 class App extends React.Component {
   constructor (props) {
     super(props);
     this.state = {
-      blocks: [],
-      isDragging: [],
-    }
+      unplacedBlocks: {},
+      isDragging: undefined,
+      horizontalScale: undefined,
+      verticalScale: undefined,
+      numDropzones: 10,
+    };
+
     this.generateBlocks = this.generateBlocks.bind(this);
     this.scaleBlocks = this.scaleBlocks.bind(this);
+    this.scaleLength = this.scaleLength.bind(this);
+    this.scaleHeight = this.scaleHeight.bind(this);
     this.getDataFromCSV = this.getDataFromCSV.bind(this);
     this.readFiles = this.readFiles.bind(this);
     this.renderBlocks = this.renderBlocks.bind(this);
+    this.renderDragImage = this.renderDragImage.bind(this);
+    this.renderDropZones = this.renderDropZones.bind(this);
     this.dragStart = this.dragStart.bind(this);
     this.dragEnd = this.dragEnd.bind(this);
-    this.keyDown = this.keyDown.bind(this);
+    this.drag = this.drag.bind(this);
+    this.keyUp = this.keyUp.bind(this);
+    this.setNumDropzones = this.setNumDropzones.bind(this);
   }
 
   componentDidMount() {
-    document.addEventListener('keypress', this.keyDown, false);
+    window.addEventListener('keyup', this.keyUp, false);
   }
 
-  keyDown() {
-    let blocks = this.state.blocks.map((block) => {
-      if (this.state.isDragging.includes(block.id)) {
-        const length = block.length;
-        const height = block.height;
-        block.length = height;
-        block.height = length;
-      }
-      return block;
-    });
-    blocks = this.scaleBlocks(blocks);
-    this.setState({ blocks });
+  keyUp(e) {
+    const blockId = this.state.isDragging;
+    if (blockId && e.key === ' ') {
+      const unplacedBlocks = _.cloneDeep(this.state.unplacedBlocks);
+      unplacedBlocks[blockId].flipped = !unplacedBlocks[blockId].flipped;
+      this.setState({ unplacedBlocks });
+    }
   }
 
   /**
@@ -46,17 +54,14 @@ class App extends React.Component {
    * @returns 
    */
   generateBlocks(data) {
-    const blocks = [];
+    const blocks = {};
     for (const row of data) {
-      blocks.push({
+      blocks[row.id] = {
         id: row.id,
         length: +row.length,
-        width: +row.width,
         height: +row.height,
-        scaledLength: +row.length,
-        scaledWidth: +row.width,
-        scaledHeight: +row.height,
-      })
+        flipped: false,
+      };
     }
     return blocks;
   }
@@ -67,22 +72,24 @@ class App extends React.Component {
    * @returns 
    */
   scaleBlocks(blocks) {
-    const maxLength = blocks.reduce((acc, el) => {
-      if (acc < el.length) {
-        acc = el.length;
+    const maxLength = Object.keys(blocks).reduce((acc, blockId) => {
+      const length = blocks[blockId].length;
+      if (acc < length) {
+        acc = length;
       }
-      return acc;
+      return length;
     }, -Infinity);
-    const maxHeight = blocks.reduce((acc, el) => {
-      if (acc < el.height) {
-        acc = el.height;
+    const maxHeight = Object.keys(blocks).reduce((acc, blockId) => {
+      const height = blocks[blockId].height;
+      if (acc < height) {
+        acc = height;
       }
-      return acc;
+      return height;
     }, -Infinity);
-    blocks.forEach((block) => {
-      block.scaledLength = block.length * (50 / maxLength); // values can range from 0-50
-      block.scaledHeight = 50 + block.height * (150 / maxHeight); // values can range from 50-200
-    });
+    this.setState({
+      horizontalScale: 50 / maxLength,
+      verticalScale: 150 / maxHeight
+    })
     return blocks;
   }
   
@@ -124,9 +131,9 @@ class App extends React.Component {
     )
     .then((jaggedData) => {
       const data = jaggedData.flat();
-      this.setState({
-        blocks: this.scaleBlocks(this.generateBlocks(data))
-      });
+      const unplacedBlocks = this.generateBlocks(data);
+      this.scaleBlocks(unplacedBlocks);
+      this.setState({ unplacedBlocks });
     })
     .catch((err) => {
       console.error(err);
@@ -134,62 +141,190 @@ class App extends React.Component {
     });
   }
 
-  dragStart(blockId) {
-    if (!this.state.isDragging.includes(blockId)) {
-      this.setState({
-        isDragging: this.state.isDragging.concat(blockId),
-      })
+  dragStart(e, blockId) {
+    e.dataTransfer.setDragImage(
+      document.getElementById('dragImage'), 
+      e.nativeEvent.offsetX, 
+      e.nativeEvent.offsetY
+    );
+
+    const unplacedBlocks = _.cloneDeep(this.state.unplacedBlocks);
+    unplacedBlocks[blockId].diffX = 0; 
+    unplacedBlocks[blockId].diffY = 0; 
+    unplacedBlocks[blockId].tmpTranslationX = unplacedBlocks[blockId].translationX || 0; 
+    unplacedBlocks[blockId].tmpTranslationY = unplacedBlocks[blockId].translationY || 0; 
+    unplacedBlocks[blockId].currentX = e.clientX;
+    unplacedBlocks[blockId].currentY = e.clientY;
+    
+    this.setState({ unplacedBlocks, isDragging: blockId });
+  }
+
+
+  drag(e, blockId) {
+    const unplacedBlocks = _.cloneDeep(this.state.unplacedBlocks);
+    
+    unplacedBlocks[blockId].diffX = e.clientX - unplacedBlocks[blockId].currentX;
+    unplacedBlocks[blockId].diffY = e.clientY - unplacedBlocks[blockId].currentY;
+    unplacedBlocks[blockId].currentX = e.clientX;
+    unplacedBlocks[blockId].currentY = e.clientY;
+    unplacedBlocks[blockId].tmpTranslationX += unplacedBlocks[blockId].diffX;
+    unplacedBlocks[blockId].tmpTranslationY += unplacedBlocks[blockId].diffY;
+
+    this.setState({ unplacedBlocks });
+  }
+  
+  dragEnd(e, blockId) {
+    e.preventDefault();
+    const unplacedBlocks = _.cloneDeep(this.state.unplacedBlocks);
+    unplacedBlocks[blockId].translationX = unplacedBlocks[blockId].tmpTranslationX;
+    unplacedBlocks[blockId].translationY = unplacedBlocks[blockId].tmpTranslationY;
+    this.setState({ unplacedBlocks });
+  }
+
+  scaleLength(block) {
+    if (block.flipped) {
+      return block.height * this.state.horizontalScale;
     }
+    return block.length * this.state.horizontalScale;
   }
 
-  dragEnd(blockId) {
-    this.setState({
-      isDragging: this.state.isDragging.filter(id => id !== blockId),
-    })
+  scaleHeight(block) {
+    if (block.flipped) {
+      return 50 + block.length * this.state.verticalScale;
+    }
+    return 50 + block.height * this.state.verticalScale;
   }
 
-  renderBlocks() {
-    return this.state.blocks.map((block, id) => {  
+  renderBlocks(blocks) {
+    return Object.keys(blocks).map((blockId, id) => {   
+      const block = blocks[blockId];
       return (
-        // this div controls the length of the blocks, not the block itself
         <div 
-          style={{ width: `${block.scaledLength}%` }}
-          key={block.id}
+          id={`block${block.id}`}
+          key={`block${block.id}`}
+          style={{ 
+            width: `${this.scaleLength(block)}%`, 
+            transform: `translate(${block.translationX}px, ${block.translationY}px)`
+          }}
+          onDragStart={(e) => this.dragStart(e, block.id)}
+          onDrag={(e) => this.drag(e, block.id)}
+          onDragEnd={(e) => this.dragEnd(e, block.id)}
+          draggable
         >
-          <Draggable 
-            onStart={() => this.dragStart(block.id)}
-            onStop={() => this.dragEnd(block.id)}
-          >
-            <div>
-              <Block 
-                draggableId={block.id} 
-                index={id} 
-                length={block.scaledLength} 
-                height={block.scaledHeight} 
-              />
-            </div>
-          </Draggable>
+          <Block 
+            draggableId={block.id} 
+            index={id} 
+            length={this.scaleLength(block)} 
+            height={this.scaleHeight(block)} 
+          />
         </div>
       )
     });
   }
+
+  renderDragImage(block) {
+    if (!block) {
+      return (
+        <canvas 
+          id="dragImage" 
+          style={{ 
+            backgroundColor: 'gray', 
+            zIndex: -1000,
+            position: 'relative',
+            height: '0px',
+            width: '0px',
+          }} 
+        />
+      );
+    }
+    const length = this.scaleLength(block);
+    const height = this.scaleHeight(block);
+    const colorIntensity = height < 200 ? height : 200;
+    return (
+      <canvas 
+        id="dragImage" 
+        style={{
+          width: `${length}%`,
+          backgroundColor: `rgb(${colorIntensity}, ${colorIntensity}, ${colorIntensity})`,
+          height: '30px',
+          position: 'relative',
+          zIndex: -1000,
+        }} 
+      />
+    );
+  }
+
+  renderDropZones() {
+    const dropzones = [];
+    const heightPercentage = 100 / (this.state.numDropzones + 1);
+    for (let i = 0; i < this.state.numDropzones; i++) {
+      dropzones[i] = (
+        <div 
+          key={`dropzone${i}`} 
+          style={{ height: `${heightPercentage}%` }}
+        >
+          <DropZone />
+        </div>
+      )
+    }
+    return dropzones;
+  }
+
+  setNumDropzones(e) {
+    this.setState({ numDropzones: +e.target.value })
+  }
   
   render() {
     return (
-        <div>
+        <div 
+          className="flex-container padding" 
+          onDragOver={(e) => e.preventDefault()}
+        >
           <h1>Frame Stacker</h1>
-          <div className="flex-container">
-            <div id="unplaced-blocks" className="column1 padding droppables">
-              <p>Unplaced blocks:</p>
-              {this.renderBlocks ? this.renderBlocks() : <div><p>Yeeet</p></div>}
-            </div>
-            <div id="placed-blocks" className="column2 padding droppables"></div>
-          </div>
-          <div className="padding">
-            <div>
-              <input id="frames" className="ui-button ui-widget ui-corner-all" type="file" name="frames" accept="test/csv" onChange={this.readFiles} multiple />
-            </div>
-          </div>
+            <Stack direction="vertical" className="stack" gap={3}>
+              <Row id="stack-height">
+                <label 
+                  htmlFor="stackHeight"
+                  style={{ width: '20%' }}
+                >
+                  Stack height:
+                </label>
+                <input 
+                  id="stackHeight" 
+                  type="number" 
+                  min="10"
+                  max="20"
+                  onChange={this.setNumDropzones}
+                  style={{ width: '20%' }}
+                />
+              </Row>
+              <Row id="file-input">
+                <Form.Group controlId="formFile" className="mb-3">
+                  <Form.Label>Import one or more CSV files with blocks to be stacked</Form.Label>
+                  <Form.Control 
+                    className="ui-button ui-widget ui-corner-all" 
+                    type="file" 
+                    name="frames" 
+                    accept="test/csv" 
+                    onChange={this.readFiles} 
+                    multiple 
+                  />
+                </Form.Group>
+              </Row>
+              <Row id="frame-stacker">
+                <Stack direction="horizontal" className="stack" gap={3}>
+                  <div className="bg-light border column padding">
+                    <p>Unplaced blocks:</p>
+                    {this.renderBlocks(this.state.unplacedBlocks)}
+                    {this.renderDragImage(this.state.unplacedBlocks[this.state.isDragging])}
+                  </div>
+                  <div className="bg-light border column padding">
+                    <p>Place blocks here:</p>
+                    { this.renderDropZones() }
+                  </div>
+                </Stack>
+              </Row>
+            </Stack>
         </div>
     );
   }
