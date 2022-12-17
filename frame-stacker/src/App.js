@@ -16,6 +16,7 @@ class App extends React.Component {
       isDragging: undefined,
       horizontalScale: undefined,
       verticalScale: undefined,
+      numDropzones: 10,
     };
 
     this.generateBlocks = this.generateBlocks.bind(this);
@@ -26,10 +27,12 @@ class App extends React.Component {
     this.readFiles = this.readFiles.bind(this);
     this.renderBlocks = this.renderBlocks.bind(this);
     this.renderDragImage = this.renderDragImage.bind(this);
+    this.renderDropZones = this.renderDropZones.bind(this);
     this.dragStart = this.dragStart.bind(this);
     this.dragEnd = this.dragEnd.bind(this);
     this.drag = this.drag.bind(this);
     this.keyUp = this.keyUp.bind(this);
+    this.setNumDropzones = this.setNumDropzones.bind(this);
   }
 
   componentDidMount() {
@@ -228,6 +231,8 @@ class App extends React.Component {
             backgroundColor: 'gray', 
             zIndex: -1000,
             position: 'relative',
+            height: '0px',
+            width: '0px',
           }} 
         />
       );
@@ -248,6 +253,26 @@ class App extends React.Component {
       />
     );
   }
+
+  renderDropZones() {
+    const dropzones = [];
+    const heightPercentage = 100 / (this.state.numDropzones + 1);
+    for (let i = 0; i < this.state.numDropzones; i++) {
+      dropzones[i] = (
+        <div 
+          key={`dropzone${i}`} 
+          style={{ height: `${heightPercentage}%` }}
+        >
+          <DropZone />
+        </div>
+      )
+    }
+    return dropzones;
+  }
+
+  setNumDropzones(e) {
+    this.setState({ numDropzones: +e.target.value })
+  }
   
   render() {
     return (
@@ -257,6 +282,22 @@ class App extends React.Component {
         >
           <h1>Frame Stacker</h1>
             <Stack direction="vertical" className="stack" gap={3}>
+              <Row id="stack-height">
+                <label 
+                  htmlFor="stackHeight"
+                  style={{ width: '20%' }}
+                >
+                  Stack height:
+                </label>
+                <input 
+                  id="stackHeight" 
+                  type="number" 
+                  min="10"
+                  max="20"
+                  onChange={this.setNumDropzones}
+                  style={{ width: '20%' }}
+                />
+              </Row>
               <Row id="file-input">
                 <Form.Group controlId="formFile" className="mb-3">
                   <Form.Label>Import one or more CSV files with blocks to be stacked</Form.Label>
@@ -279,7 +320,7 @@ class App extends React.Component {
                   </div>
                   <div className="bg-light border column padding">
                     <p>Place blocks here:</p>
-                    <DropZone />
+                    { this.renderDropZones() }
                   </div>
                 </Stack>
               </Row>

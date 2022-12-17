@@ -21,10 +21,17 @@ class DropZone extends React.Component {
     render() {
         return (
             <div 
-                style={{ height: '100%' }}
+                style={{ 
+                    height: '100%',
+                    backgroundColor: this.state.hovered ? '#99ccff' : 'inherit',
+                    borderColor: 'black',
+                    borderTop: '1px solid', 
+                }}
                 onDragEnter={this.onDragEnter}
+                onMouseEnter={this.onDragEnter}
                 onDragLeave={this.onDragLeave}
                 onDrop={this.onDragLeave}
+                onMouseLeave={this.onDragLeave}
             >
             </div>
         )
